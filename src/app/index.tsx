@@ -1,98 +1,117 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+import { COLORS } from '../constants/colors';
 
 export default function HomeScreen() {
+  const router = useRouter();
+  const [name, setName] = useState('');
+  const [studentId, setStudentId] = useState('');
+
+  const goScreen2 = () =>
+    router.push({
+      pathname: '/screen2',
+      params: { name: name.trim(), studentId: studentId.trim() },
+    });
+
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+    <SafeAreaView style={styles.screen}>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView contentContainerStyle={styles.content}>
+          <View style={[styles.row, { height: 100 }]}>
+            <View style={[styles.box, { flex: 1, backgroundColor: COLORS.blue }]}>
+              <Text style={styles.number}>1</Text>
+            </View>
+            <View style={[styles.box, { flex: 1, backgroundColor: COLORS.red }]}>
+              <Text style={styles.number}>2</Text>
+            </View>
+          </View>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+          <View style={[styles.row, { height: 100 }]}>
+            <View style={[styles.box, { flex: 1, backgroundColor: COLORS.yellow }]}>
+              <Text style={[styles.number, { color: '#000' }]}>3</Text>
+            </View>
+            <View style={[styles.box, { flex: 1, backgroundColor: COLORS.green }]}>
+              <Text style={styles.number}>4</Text>
+            </View>
+            <View style={[styles.box, { flex: 2, backgroundColor: COLORS.purple }]}>
+              <Text style={styles.number}>5</Text>
+            </View>
+          </View>
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
+          <View style={[styles.box, { height: 85, backgroundColor: COLORS.orange }]}>
+            <Text style={styles.number}>6</Text>
+          </View>
+
+          <Text style={styles.title}>Nhap thong tin sinh vien</Text>
+
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your name"
+            placeholderTextColor="#555"
+            value={name}
+            onChangeText={setName}
           />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your student ID"
+            placeholderTextColor="#555"
+            value={studentId}
+            onChangeText={setStudentId}
           />
-        </ThemedView>
 
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+          <Pressable style={styles.button} onPress={goScreen2}>
+            <Text style={styles.buttonText}>Click me</Text>
+          </Pressable>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
+  screen: { flex: 1, backgroundColor: '#fff', paddingTop: Platform.OS === 'android' ? 30 : 0 },
+  flex: { flex: 1 },
+  content: { padding: 12, gap: 8 },
+  row: { flexDirection: 'row', gap: 8 },
+  box: { borderRadius: 4, alignItems: 'center', justifyContent: 'center' },
+  number: { fontSize: 44, fontWeight: 'bold', color: '#fff' },
   title: {
+    fontSize: 20,
+    fontWeight: '500',
+    color: COLORS.text,
     textAlign: 'center',
+    marginTop: 80,
+    marginBottom: 8,
   },
-  code: {
-    textTransform: 'uppercase',
+  input: {
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 13,
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+  button: {
+    backgroundColor: COLORS.button,
+    borderRadius: 8,
+    paddingHorizontal: 26,
+    paddingVertical: 11,
+    alignSelf: 'center',
+    marginTop: 14,
   },
+  buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 13 },
 });
